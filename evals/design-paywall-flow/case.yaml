@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: design-paywall-flow
+expected_outcome: |
+  A paywall-spec.md that reduces the options shown on the first screen, puts the plan it wants
+  chosen first, explains in on-screen copy exactly when the user is charged, keeps the user's
+  already-marked answers fully visible, times the paywall after a moment of value rather than as
+  an interruption, writes exact copy instead of placeholders, and lists the screen's states.

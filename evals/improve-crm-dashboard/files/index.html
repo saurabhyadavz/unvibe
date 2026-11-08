@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Kestrel CRM</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#fff; --border:#e5e7eb; --border-soft:#eef0f3;
+    --text:#111827; --text-2:#374151; --muted:#6b7280; --subtle:#9ca3af;
+    --accent:#4f46e5; --accent-soft:#eef2ff;
+    --side:#0f172a; --side-2:#1e293b; --side-text:#cbd5e1; --side-muted:#64748b;
+    --s-pros:#94a3b8; --s-qual:#0ea5e9; --s-prop:#8b5cf6; --s-nego:#f59e0b; --s-won:#10b981;
+    --red:#dc2626; --red-soft:#fef2f2; --amber:#b45309; --amber-soft:#fffbeb; --green:#047857; --green-soft:#ecfdf5;
+    --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit}
+  .num{font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)}
+  .r{text-align:right}
+  svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;opacity:0}
+
+  /* ---------- Shell ---------- */
+  .app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+  .sidebar{background:var(--side);color:var(--side-text);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:18px 14px;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:2px 8px 18px}
+  .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#22d3ee);display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;flex:none}
+  .brand b{color:#fff;font-size:16px;letter-spacing:-.01em;display:block;line-height:1.2}
+  .brand small{display:block;color:var(--side-muted);font-size:11.5px}
+  .nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--side-muted);padding:18px 10px 6px;font-weight:600}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{position:relative;display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:8px;color:var(--side-text);font-weight:500;font-size:13.5px}
+  .nav a:hover{background:var(--side-2);color:#fff}
+  .nav a.active{background:var(--side-2);color:#fff;box-shadow:inset 3px 0 0 #818cf8}
+  .nav .badge{margin-left:auto;font-style:normal;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:#334155;color:#e2e8f0}
+  .nav .badge.alert{background:#dc2626;color:#fff}
+  .views .dot{width:8px;height:8px;border-radius:50%;margin:0 5px;flex:none}
+  .side-foot{margin-top:auto;padding-top:16px}
+  .quarter{background:var(--side-2);border-radius:10px;padding:12px;margin-bottom:10px}
+  .quarter .q-top{display:flex;justify-content:space-between;font-size:12px;color:var(--side-text);margin-bottom:8px}
+  .quarter .q-top b{color:#fff;font-weight:600}
+  .q-bar{height:5px;border-radius:99px;background:#334155;overflow:hidden}
+  .q-bar span{display:block;height:100%;background:#818cf8;border-radius:99px}
+  .quarter small{display:block;color:var(--side-muted);font-size:11.5px;margin-top:6px}
+
+  .shell{min-width:0;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:5;background:rgba(245,246,248,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:12px 28px}
+  .search{flex:1;max-width:520px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:0 10px;height:38px;color:var(--muted)}
+  .search:focus-within{border-color:#a5b4fc;box-shadow:0 0 0 3px #e0e7ff}
+  .search input{border:0;outline:0;flex:1;min-width:0;font:inherit;color:var(--text);background:transparent}
+  kbd{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:3px 5px;color:var(--muted);background:#fafafa}
+  .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:13px;color:var(--text-2);cursor:pointer;white-space:nowrap}
+  .btn:hover{background:#f9fafb}
+  .btn svg.i{width:16px;height:16px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:#4338ca}
+  .icon-btn{position:relative;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer}
+  .icon-btn .pip{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;font-size:10px;font-weight:700;border-radius:99px;background:var(--red);color:#fff;display:grid;place-items:center;border:2px solid var(--bg)}
+  .me{display:flex;align-items:center;gap:10px;padding-left:6px}
+  .me b{display:block;font-size:13px;line-height:1.2}
+  .me small{color:var(--muted);font-size:12px}
+
+  /* ---------- Avatars / logos ---------- */
+  .av{width:32px;height:32px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px;font-weight:700;color:#fff;flex:none;letter-spacing:.02em}
+  .av.xs{width:24px;height:24px;font-size:10px}
+  .c1{background:#6366f1}.c2{background:#0ea5e9}.c3{background:#f97316}.c4{background:#14b8a6}.c5{background:#ec4899}
+  .c6{background:#8b5cf6}.c7{background:#65a30d}.c8{background:#ca8a04}.c9{background:#64748b}.c10{background:#e11d48}
+  .logo-sq{width:32px;height:32px;border-radius:8px;display:inline-grid;place-items:center;font-size:11px;font-weight:800;flex:none;letter-spacing:.02em}
+  .lg1{background:#eef2ff;color:#4338ca}.lg2{background:#ecfdf5;color:#047857}.lg3{background:#fff7ed;color:#c2410c}.lg4{background:#f0f9ff;color:#0369a1}
+  .lg5{background:#fdf2f8;color:#be185d}.lg6{background:#f5f3ff;color:#6d28d9}.lg7{background:#fefce8;color:#a16207}.lg8{background:#f1f5f9;color:#334155}
+
+  /* ---------- Content ---------- */
+  .content{padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;width:100%;max-width:1520px}
+  .hello{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .hello .date{color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px}
+  .hello h1{margin:0;font-size:24px;letter-spacing:-.02em;line-height:1.25}
+  .hello p{margin:6px 0 0;color:var(--text-2);max-width:820px}
+  .hello p b{color:var(--text)}
+  .hl-red{color:var(--red);font-weight:600;text-decoration:underline;text-decoration-color:#fca5a5;text-underline-offset:3px}
+  .hello-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:9px;background:#fff;border:1px solid var(--border);color:var(--text-2);font-size:13px;font-weight:500;white-space:nowrap}
+  .chip svg.i{width:15px;height:15px;color:var(--muted)}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;min-width:0}
+  .kpi .label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;font-weight:600}
+  .kpi .ico{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:none}
+  .kpi .ico svg.i{width:15px;height:15px}
+  .kpi .value{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+  .kpi .value small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:4px}
+  .kpi .sub{color:var(--muted);font-size:12.5px}
+  .up{color:var(--green);font-weight:600}
+  .warn{color:var(--amber);font-weight:600}
+  .meter{position:relative;height:6px;border-radius:99px;background:#eef0f3;margin:4px 0 2px}
+  .meter span{display:block;height:100%;border-radius:99px;background:var(--s-won)}
+  .meter i{position:absolute;top:-4px;bottom:-4px;width:2px;border-radius:2px;background:var(--text)}
+
+  /* Grid + cards */
+  .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:stretch}
+  .span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+  .card-head{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap}
+  .card-head h2{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+  .card-head .meta{color:var(--muted);font-size:12.5px}
+  .card-head .meta .late{color:var(--red);font-weight:600}
+  .card-head .link{margin-left:auto;color:var(--accent);font-weight:600;font-size:12.5px;white-space:nowrap}
+  .card-body{padding:16px 20px 20px}
+  .card-foot{padding:10px 20px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--muted);display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-top:auto}
+
+  /* Pipeline */
+  .stage{display:grid;grid-template-columns:148px minmax(0,1fr) 86px 80px;align-items:center;gap:14px}
+  .stage-th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);font-weight:600;margin-bottom:10px}
+  .stages{display:flex;flex-direction:column;gap:12px}
+  .stage-name{display:flex;align-items:center;gap:10px;min-width:0}
+  .stage-name b{display:block;font-weight:600;font-size:13.5px;line-height:1.25}
+  .stage-name small{display:block;color:var(--muted);font-size:12px}
+  .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .bar{height:24px;background:#f3f4f6;border-radius:6px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:6px}
+  .stage .v{font-weight:600}
+  .stage.won-row{padding-top:12px;border-top:1px dashed var(--border)}
+  .stage.won-row .bar span{background:repeating-linear-gradient(135deg,#10b981 0 8px,#34d399 8px 16px)}
+  .stage-total{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-soft);font-weight:700;font-size:13px}
+  .stage-total .lbl{color:var(--text-2)}
+  .forecast{margin-top:18px;padding:14px 16px 12px;background:#f9fafb;border:1px solid var(--border-soft);border-radius:10px}
+  .f-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:13px}
+  .f-head .proj{color:var(--text-2)}
+  .f-head .good{color:var(--green);font-weight:700}
+  .fbar{position:relative;height:14px;background:#e5e7eb;border-radius:99px;display:flex}
+  .fbar .closed{background:var(--s-won);border-radius:99px 0 0 99px}
+  .fbar .weighted{background:repeating-linear-gradient(135deg,#6ee7b7 0 6px,#a7f3d0 6px 12px);border-radius:0 99px 99px 0}
+  .fbar .quota{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--text);border-radius:2px}
+  .f-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .f-legend span{display:inline-flex;align-items:center;gap:6px}
+  .f-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .f-legend b{color:var(--text-2);font-weight:600}
+
+  /* Tasks */
+  .tasks-card,.activity-card{contain:size;position:relative}
+  .scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding-bottom:22px}
+  .tasks-card::after,.activity-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(rgba(255,255,255,0),#fff);pointer-events:none;border-radius:0 0 var(--radius) var(--radius)}
+  .t-group{position:sticky;top:0;z-index:1;background:#fff;padding:10px 20px 6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;gap:6px;align-items:center}
+  .t-group span{background:#f3f4f6;color:var(--text-2);border-radius:99px;padding:0 6px;font-size:10.5px;letter-spacing:0}
+  .t-group.overdue{color:var(--red)}
+  .t-group.overdue span{background:var(--red-soft);color:var(--red)}
+  .task{display:flex;gap:12px;padding:8px 20px;align-items:flex-start;cursor:pointer}
+  .task:hover{background:#fafafb}
+  .task input{margin:2px 0 0;width:16px;height:16px;accent-color:var(--accent);flex:none;cursor:pointer}
+  .task-body{flex:1;min-width:0;display:block}
+  .task-title{display:block;font-weight:550;color:var(--text);font-size:13.5px}
+  .task-meta{display:flex;flex-wrap:wrap;gap:2px 10px;color:var(--muted);font-size:12px;margin-top:2px}
+  .task-meta .due{font-weight:600;color:var(--text-2)}
+  .task-meta .due.late{color:var(--red)}
+  .task input:checked + .task-body .task-title{text-decoration:line-through;color:var(--subtle)}
+  .task input:checked + .task-body{opacity:.75}
+  .prio{font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;flex:none;margin-top:1px}
+  .prio.high{background:var(--red-soft);color:var(--red)}
+  .prio.med{background:var(--amber-soft);color:var(--amber)}
+  .prio.low{background:#f1f5f9;color:#475569}
+  .prio.done{background:var(--green-soft);color:var(--green)}
+
+  /* Tables */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  .deals table{min-width:1060px}
+  .deals td:first-child{min-width:250px}
+  .contacts table{min-width:740px}
+  .contacts td:first-child{min-width:215px}
+  .contacts .cell b{white-space:nowrap}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:left;padding:9px 12px;background:#fafbfc;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+  th.r,td.r{text-align:right}
+  tbody tr:hover{background:#fafbff}
+  th:first-child,td:first-child{padding-left:20px}
+  th:last-child,td:last-child{padding-right:20px}
+  .cell{display:flex;align-items:center;gap:10px;min-width:0}
+  .cell b{display:block;font-weight:600;line-height:1.3}
+  .cell small{display:block;color:var(--muted);font-size:12px}
+  .person{display:flex;align-items:center;gap:8px;white-space:nowrap;color:var(--text-2)}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .p-pros{background:#f1f5f9;color:#475569}
+  .p-qual{background:#e0f2fe;color:#0369a1}
+  .p-prop{background:#f3e8ff;color:#7e22ce}
+  .p-nego{background:#fef3c7;color:#b45309}
+  .p-won{background:#d1fae5;color:#047857}
+  .p-lost{background:#fee2e2;color:#b91c1c}
+  .amt{font-weight:650}
+  .prob{display:inline-flex;align-items:center;gap:8px}
+  .prob i{width:38px;height:4px;background:#eef0f3;border-radius:99px;overflow:hidden;display:block}
+  .prob i b{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .when{white-space:nowrap}
+  .when small{display:block;color:var(--muted);font-size:12px}
+  .when.soon small{color:var(--amber);font-weight:600}
+  .next{color:var(--text-2);font-size:13px}
+  .tag{display:inline-block;margin-top:3px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px}
+  .tag.stale{background:var(--red-soft);color:var(--red)}
+  .tag.today{background:var(--accent-soft);color:var(--accent)}
+  tfoot td{font-weight:650;background:#fafbfc;border-bottom:0;font-size:13px}
+
+  /* Deal tabs (CSS-only) */
+  .tabs{display:inline-flex;background:#f3f4f6;border-radius:9px;padding:3px;gap:2px}
+  .tabs label{padding:4px 11px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+  .tabs label span{font-size:11px;background:#e5e7eb;color:var(--text-2);padding:0 6px;border-radius:99px}
+  #tab-open:checked ~ .card-head label[for="tab-open"],
+  #tab-won:checked ~ .card-head label[for="tab-won"],
+  #tab-lost:checked ~ .card-head label[for="tab-lost"]{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  #tab-open:focus-visible ~ .card-head label[for="tab-open"],
+  #tab-won:focus-visible ~ .card-head label[for="tab-won"],
+  #tab-lost:focus-visible ~ .card-head label[for="tab-lost"]{outline:2px solid var(--accent);outline-offset:1px}
+  .deals .row-won,.deals .row-lost{display:none}
+  #tab-won:checked ~ .table-wrap .row-open,
+  #tab-lost:checked ~ .table-wrap .row-open{display:none}
+  #tab-won:checked ~ .table-wrap .row-won,
+  #tab-lost:checked ~ .table-wrap .row-lost{display:table-row}
+
+  /* Contacts */
+  .star{color:#f59e0b;font-size:13px;margin-left:3px}
+  .role{display:inline-block;font-size:11px;font-weight:600;color:var(--text-2);background:#f3f4f6;padding:1px 7px;border-radius:5px;margin-top:3px}
+  .role.champ{background:#ecfdf5;color:#047857}
+  .role.dm{background:#eef2ff;color:#4338ca}
+  .co{display:block;font-weight:550}
+  .touch{display:inline-flex;align-items:center;gap:6px;font-weight:550;color:var(--text-2);white-space:nowrap}
+  .touch svg.i{width:14px;height:14px;color:var(--muted)}
+  .touch-ago{display:block;font-size:12px;color:var(--muted)}
+  .touch-ago.cold{color:var(--red);font-weight:600}
+  .reach a{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);white-space:nowrap}
+  .reach a:hover{color:var(--accent)}
+  .reach svg.i{width:13px;height:13px;color:var(--subtle)}
+
+  /* Activity */
+  .feed{list-style:none;margin:0;padding:6px 20px 14px}
+  .feed li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;padding:9px 0;position:relative}
+  .feed li:not(:last-child)::before{content:"";position:absolute;left:14.5px;top:42px;bottom:-6px;width:1px;background:var(--border)}
+  .f-ico{width:30px;height:30px;border-radius:50%;display:grid;place-items:center}
+  .f-ico svg.i{width:14px;height:14px}
+  .f-text{min-width:0;font-size:13px}
+  .f-text p{margin:0;color:var(--text-2)}
+  .f-text p b,.f-text p a{color:var(--text);font-weight:600}
+  .f-text p a:hover{color:var(--accent)}
+  .quote{margin-top:5px;font-size:12.5px;color:var(--text-2);background:#f9fafb;border:1px solid var(--border-soft);border-radius:8px;padding:6px 10px}
+  .f-meta{font-size:12px;color:var(--muted);margin-top:3px}
+  .t-call{background:#ecfdf5;color:#047857}.t-email{background:#eff6ff;color:#1d4ed8}.t-meet{background:#f5f3ff;color:#6d28d9}
+  .t-note{background:#f1f5f9;color:#475569}.t-stage{background:#fffbeb;color:#b45309}.t-won{background:#d1fae5;color:#047857}
+  .t-lost{background:#fee2e2;color:#b91c1c}.t-view{background:#f0f9ff;color:#0369a1}.t-new{background:#eef2ff;color:#4338ca}
+
+  .page-foot{color:var(--subtle);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:4px}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:1180px){
+    .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .span-4,.span-5,.span-7,.span-8{grid-column:span 12}
+    .tasks-card,.activity-card{contain:none}
+    .scroll{max-height:460px}
+  }
+  @media (max-width:900px){
+    .app{grid-template-columns:68px minmax(0,1fr)}
+    .sidebar{padding:16px 10px}
+    .brand{justify-content:center;padding:2px 0 16px}
+    .brand-text,.nav span,.nav .badge,.nav-label,.views,.quarter{display:none}
+    .nav a{justify-content:center;padding:10px}
+    .me-text{display:none}
+    .topbar{padding:10px 16px}
+    .content{padding:20px 16px 32px}
+  }
+  @media (max-width:640px){
+    .app{grid-template-columns:minmax(0,1fr)}
+    .sidebar{display:none}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .btn .lbl,kbd{display:none}
+    .stage{grid-template-columns:112px minmax(0,1fr) 78px}
+    .stage > :nth-child(4){display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-funnel" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M3 7h18"/><path d="M6 7l-3 7a3 3 0 0 0 6 0z"/><path d="M18 7l-3 7a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+</svg>
+
+<div class="app">
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="logo">K</div>
+      <div class="brand-text"><b>Kestrel CRM</b><small>Northbeam Analytics</small></div>
+    </div>
+    <nav class="nav">
+      <a class="active" href="#" aria-current="page" title="Dashboard"><svg class="i"><use href="#i-grid"/></svg><span>Dashboard</span></a>
+      <a href="#" title="Pipeline"><svg class="i"><use href="#i-funnel"/></svg><span>Pipeline</span></a>
+      <a href="#" title="Deals"><svg class="i"><use href="#i-brief"/></svg><span>Deals</span><em class="badge">12</em></a>
+      <a href="#" title="Contacts"><svg class="i"><use href="#i-users"/></svg><span>Contacts</span></a>
+      <a href="#" title="Companies"><svg class="i"><use href="#i-building"/></svg><span>Companies</span></a>
+      <a href="#" title="Tasks"><svg class="i"><use href="#i-check"/></svg><span>Tasks</span><em class="badge alert" title="2 overdue">2</em></a>
+      <a href="#" title="Activity"><svg class="i"><use href="#i-activity"/></svg><span>Activity</span></a>
+      <a href="#" title="Reports"><svg class="i"><use href="#i-chart"/></svg><span>Reports</span></a>
+    </nav>
+
+    <div class="nav-label">Saved views</div>
+    <nav class="nav views">
+      <a href="#"><i class="dot" style="background:#10b981"></i><span>My Q4 commits</span><em class="badge">7</em></a>
+      <a href="#"><i class="dot" style="background:#f59e0b"></i><span>Closing this month</span><em class="badge">4</em></a>
+      <a href="#"><i class="dot" style="background:#ef4444"></i><span>Going cold (14d+)</span><em class="badge">2</em></a>
+    </nav>
+
+    <div class="side-foot">
+      <div class="quarter">
+        <div class="q-top"><span>Q4 2026</span><b>53 days left</b></div>
+        <div class="q-bar"><span style="width:42.4%"></span></div>
+        <small>Day 39 of 92 · Mid-Market West</small>
+      </div>
+      <nav class="nav">
+        <a href="#" title="Settings"><svg class="i"><use href="#i-sliders"/></svg><span>Settings</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <div class="shell">
+    <header class="topbar">
+      <label class="search">
+        <svg class="i"><use href="#i-search"/></svg>
+        <input id="q" type="search" placeholder="Search deals, contacts, companies…" aria-label="Search">
+        <kbd>⌘K</kbd>
+      </label>
+      <div class="top-actions">
+        <button class="btn primary" type="button"><svg class="i"><use href="#i-plus"/></svg><span class="lbl">New deal</span></button>
+        <button class="icon-btn" type="button" aria-label="Notifications, 3 unread"><svg class="i"><use href="#i-bell"/></svg><span class="pip">3</span></button>
+        <div class="me">
+          <span class="av c1">PR</span>
+          <div class="me-text"><b>Priya Raman</b><small>Account Executive</small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Greeting -->
+      <section class="hello">
+        <div>
+          <div class="date">Sunday, November 8, 2026</div>
+          <h1>Good evening, Priya</h1>
+          <p>You have <a class="hl-red" href="#tasks">2 overdue tasks</a>, 1 due today and 3 lined up for Monday. <b>4 deals worth $280K</b> are set to close this month. The biggest, Sable Point Insurance ($118K), has its legal review Monday at 10:00&nbsp;AM.</p>
+        </div>
+        <div class="hello-actions">
+          <span class="chip"><svg class="i"><use href="#i-cal"/></svg>Q4 2026 · Oct 1 – Dec 31</span>
+          <button class="btn" type="button"><svg class="i"><use href="#i-phone"/></svg><span class="lbl">Log a call</span></button>
+        </div>
+      </section>
+
+      <!-- KPI strip -->
+      <section class="kpis" aria-label="Key metrics">
+        <article class="kpi">
+          <div class="label"><span class="ico" style="background:#eef2ff;color:#4f46e5"><svg class="i"><use href="#i-layers"/></svg></span>Open pipeline</div>
+          <div class="value num">$577.5K</div>
+          <div class="sub">12 deals · <span class="up">+$26.0K</span> added this week</div>
+        </article>
+        <article class="kpi">
+          <div class="label"><span class="ico" style="background:#f5f3ff;color:#7c3aed"><svg class="i"><use href="#i-scale"/></svg></span>Weighted forecast</div>
+          <div class="value num">$271.5K</div>
+          <div class="sub">47% of open pipeline, by stage probability</div>
+        </article>
+        <article class="kpi">
+          <div class="label"><span class="ico" style="background:#ecfdf5;color:#059669"><svg class="i"><use href="#i-target"/></svg></span>Q4 quota attainment</div>
+          <div class="value num">39.6%<small>of $400K</small></div>
+          <div class="meter" title="Closed won $158,500 of $400,000 quota. Marker shows quarter elapsed (42%)."><span style="width:39.6%"></span><i style="left:42.4%"></i></div>
+          <div class="sub">$158.5K closed · <span class="warn">just behind 42% pace</span></div>
+        </article>
+        <article class="kpi">
+          <div class="label"><span class="ico" style="background:#fffbeb;color:#d97706"><svg class="i"><use href="#i-clock"/></svg></span>Closing in November</div>
+          <div class="value num">$280.0K</div>
+          <div class="sub">4 deals · $187.5K weighted</div>
+        </article>
+        <article class="kpi">
+          <div class="label"><span class="ico" style="background:#f0f9ff;color:#0284c7"><svg class="i"><use href="#i-trend"/></svg></span>Win rate · Q4</div>
+          <div class="value num">60%</div>
+          <div class="sub">3 won · 2 lost this quarter</div>
+        </article>
+      </section>
+
+      <div class="grid">
+        <!-- ============ Pipeline ============ -->
+        <section class="card span-7" aria-labelledby="h-pipeline">
+          <header class="card-head">
+            <div><h2 id="h-pipeline">Pipeline by stage</h2><div class="meta">12 open deals · Q4 closed won shown for reference</div></div>
+            <a class="link" href="#">Open board →</a>
+          </header>
+          <div class="card-body">
+            <div class="stage stage-th"><span>Stage</span><span>Value by stage</span><span class="r">Value</span><span class="r">Weighted</span></div>
+            <div class="stages">
+              <div class="stage">
+                <div class="stage-name"><i class="sw" style="background:var(--s-pros)"></i><div><b>Prospecting</b><small>4 deals · 10%</small></div></div>
+                <div class="bar"><span style="width:50.3%;background:var(--s-pros)"></span></div>
+                <div class="r num v">$95,600</div>
+                <div class="r num muted">$9,560</div>
+              </div>
+              <div class="stage">
+                <div class="stage-name"><i class="sw" style="background:var(--s-qual)"></i><div><b>Qualified</b><small>3 deals · 25%</small></div></div>
+                <div class="bar"><span style="width:55.7%;background:var(--s-qual)"></span></div>
+                <div class="r num v">$105,900</div>
+                <div class="r num muted">$26,475</div>
+              </div>
+              <div class="stage">
+                <div class="stage-name"><i class="sw" style="background:var(--s-prop)"></i><div><b>Proposal</b><small>3 deals · 50%</small></div></div>
+                <div class="bar"><span style="width:97.9%;background:var(--s-prop)"></span></div>
+                <div class="r num v">$186,000</div>
+                <div class="r num muted">$93,000</div>
+              </div>
+              <div class="stage">
+                <div class="stage-name"><i class="sw" style="background:var(--s-nego)"></i><div><b>Negotiation</b><small>2 deals · 75%</small></div></div>
+                <div class="bar"><span style="width:100%;background:var(--s-nego)"></span></div>
+                <div class="r num v">$190,000</div>
+                <div class="r num muted">$142,500</div>
+              </div>
+              <div class="stage won-row">
+                <div class="stage-name"><i class="sw" style="background:var(--s-won)"></i><div><b>Closed won</b><small>3 deals · Q4 to date</small></div></div>
+                <div class="bar"><span style="width:83.4%"></span></div>
+                <div class="r num v">$158,500</div>
+                <div class="r num muted">—</div>
+              </div>
+            </div>
+            <div class="stage stage-total"><span class="lbl">Open pipeline</span><span class="muted" style="font-weight:500">12 deals</span><span class="r num">$577,500</span><span class="r num">$271,535</span></div>
+
+            <div class="forecast">
+              <div class="f-head">
+                <b>Q4 forecast vs. quota</b>
+                <span class="proj">Projected <b class="num">$416.9K</b> · <span class="good">104% of quota</span></span>
+              </div>
+              <div class="fbar" role="img" aria-label="Closed won $158,500 plus weighted Q4 pipeline $258,375 against a $400,000 quota">
+                <span class="closed" style="width:35.2%"></span>
+                <span class="weighted" style="width:57.4%"></span>
+                <i class="quota" style="left:88.9%"></i>
+              </div>
+              <div class="f-legend">
+                <span><i style="background:var(--s-won)"></i>Closed won <b class="num">$158.5K</b></span>
+                <span><i style="background:#6ee7b7"></i>Weighted, closing by Dec 31 <b class="num">$258.4K</b></span>
+                <span><i style="background:var(--text);width:2px;height:12px;border-radius:1px"></i>Quota <b class="num">$400K</b></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ Tasks ============ -->
+        <section class="card span-5 tasks-card" id="tasks" aria-labelledby="h-tasks">
+          <header class="card-head">
+            <div><h2 id="h-tasks">My tasks</h2><div class="meta"><span id="taskCount">9 open</span> · <span class="late">2 overdue</span></div></div>
+            <a class="link" href="#">+ Add task</a>
+          </header>
+          <div class="scroll task-list">
+            <div class="t-group overdue">Overdue <span>2</span></div>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Send counter-redlines on MSA §7.2 to Elena Vasquez</span>
+                <span class="task-meta"><span class="due late">Due Fri, Nov 6</span><span>Sable Point Insurance · Claims dashboard</span></span>
+              </span>
+              <span class="prio high">High</span>
+            </label>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Follow up with Darnell Price on warehouse scoping</span>
+                <span class="task-meta"><span class="due late">Due Thu, Nov 5</span><span>Oakhurst Logistics · no reply in 17 days</span></span>
+              </span>
+              <span class="prio med">Med</span>
+            </label>
+
+            <div class="t-group">Today · Sun, Nov 8 <span>1</span></div>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Review Q4 commit list before Monday’s pipeline review</span>
+                <span class="task-meta"><span class="due">Today</span><span>Forecast · 7 deals closing in Q4</span></span>
+              </span>
+              <span class="prio med">Med</span>
+            </label>
+            <label class="task">
+              <input type="checkbox" checked>
+              <span class="task-body">
+                <span class="task-title">Log notes from Ridgeline QBR</span>
+                <span class="task-meta"><span>Completed 1h ago</span><span>Ridgeline Outdoor Co.</span></span>
+              </span>
+              <span class="prio done">Done</span>
+            </label>
+
+            <div class="t-group">Tomorrow · Mon, Nov 9 <span>3</span></div>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">MSA legal review call with Marcus Okafor + Sable Point legal</span>
+                <span class="task-meta"><span class="due">10:00 AM</span><span>Sable Point Insurance · $118,000</span></span>
+              </span>
+              <span class="prio high">High</span>
+            </label>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Confirm expansion seat count with Hannah Lindqvist</span>
+                <span class="task-meta"><span class="due">1:30 PM</span><span>Ridgeline Outdoor Co. · $72,000</span></span>
+              </span>
+              <span class="prio high">High</span>
+            </label>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Send ROI model to Tomás Herrera</span>
+                <span class="task-meta"><span class="due">Mon</span><span>Lumen Grid Energy · Field ops analytics</span></span>
+              </span>
+              <span class="prio med">Med</span>
+            </label>
+
+            <div class="t-group">Later this week <span>3</span></div>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Return security questionnaire + SOC 2 report to Rajiv Menon</span>
+                <span class="task-meta"><span class="due">Wed, Nov 11</span><span>Meridian Pharma Supply</span></span>
+              </span>
+              <span class="prio high">High</span>
+            </label>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Proposal walkthrough with Sofia Brennan</span>
+                <span class="task-meta"><span class="due">Thu, Nov 12 · 11:00 AM</span><span>Cobalt &amp; Finch Architects</span></span>
+              </span>
+              <span class="prio med">Med</span>
+            </label>
+            <label class="task">
+              <input type="checkbox">
+              <span class="task-body">
+                <span class="task-title">Intro call with Kofi Mensah</span>
+                <span class="task-meta"><span class="due">Fri, Nov 13 · 2:00 PM</span><span>Ashgrove Veterinary Partners</span></span>
+              </span>
+              <span class="prio low">Low</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ============ Deals ============ -->
+        <section class="card span-12 deals" aria-labelledby="h-deals">
+          <input class="sr" type="radio" name="dealtab" id="tab-open" checked>
+          <input class="sr" type="radio" name="dealtab" id="tab-won">
+          <input class="sr" type="radio" name="dealtab" id="tab-lost">
+          <header class="card-head">
+            <div><h2 id="h-deals">My deals</h2><div class="meta">Sorted by close date</div></div>
+            <div class="tabs" role="group" aria-label="Filter deals">
+              <label for="tab-open">Open <span>12</span></label>
+              <label for="tab-won">Won · Q4 <span>3</span></label>
+              <label for="tab-lost">Lost · Q4 <span>2</span></label>
+            </div>
+            <a class="link" href="#">All deals →</a>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Deal</th><th>Primary contact</th><th>Stage</th><th class="r">Value</th><th class="r">Prob.</th><th>Close date</th><th>Next step</th></tr>
+              </thead>
+              <tbody>
+                <!-- Open deals -->
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg2">RO</span><span><b>Ridgeline Outdoor Co.</b><small>Renewal + 40-seat expansion</small></span></div></td>
+                  <td><span class="person"><span class="av xs c3">HL</span>Hannah Lindqvist</span></td>
+                  <td><span class="pill p-nego">Negotiation</span></td>
+                  <td class="r num amt">$72,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:75%"></b></i><span class="num">75%</span></span></td>
+                  <td><div class="when soon">Nov 20, 2026<small>in 12 days</small></div></td>
+                  <td class="next">Confirm seat count with Hannah<br><span class="tag today">Mon 1:30 PM</span></td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg1">SP</span><span><b>Sable Point Insurance</b><small>Claims dashboard</small></span></div></td>
+                  <td><span class="person"><span class="av xs c1">MO</span>Marcus Okafor</span></td>
+                  <td><span class="pill p-nego">Negotiation</span></td>
+                  <td class="r num amt">$118,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:75%"></b></i><span class="num">75%</span></span></td>
+                  <td><div class="when soon">Nov 24, 2026<small>in 16 days</small></div></td>
+                  <td class="next">MSA legal review call<br><span class="tag today">Mon 10:00 AM</span></td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg6">CF</span><span><b>Cobalt &amp; Finch Architects</b><small>Firm-wide license</small></span></div></td>
+                  <td><span class="person"><span class="av xs c5">SB</span>Sofia Brennan</span></td>
+                  <td><span class="pill p-prop">Proposal</span></td>
+                  <td class="r num amt">$38,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:50%"></b></i><span class="num">50%</span></span></td>
+                  <td><div class="when soon">Nov 26, 2026<small>in 18 days</small></div></td>
+                  <td class="next">Proposal walkthrough, Thu Nov 12</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg7">LG</span><span><b>Lumen Grid Energy</b><small>Field ops analytics</small></span></div></td>
+                  <td><span class="person"><span class="av xs c4">TH</span>Tomás Herrera</span></td>
+                  <td><span class="pill p-prop">Proposal</span></td>
+                  <td class="r num amt">$52,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:50%"></b></i><span class="num">50%</span></span></td>
+                  <td><div class="when soon">Nov 30, 2026<small>in 22 days</small></div></td>
+                  <td class="next">Send ROI model (annual vs. 3-yr)</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg3">OL</span><span><b>Oakhurst Logistics</b><small>Warehouse module add-on</small></span></div></td>
+                  <td><span class="person"><span class="av xs c9">DP</span>Darnell Price</span></td>
+                  <td><span class="pill p-qual">Qualified</span></td>
+                  <td class="r num amt">$27,500</td>
+                  <td class="r"><span class="prob"><i><b style="width:25%"></b></i><span class="num">25%</span></span></td>
+                  <td><div class="when">Dec 11, 2026<small>in 33 days</small></div></td>
+                  <td class="next">Re-engage Darnell on scoping<br><span class="tag stale">No activity 17d</span></td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg4">MP</span><span><b>Meridian Pharma Supply</b><small>Compliance reporting suite</small></span></div></td>
+                  <td><span class="person"><span class="av xs c6">RM</span>Rajiv Menon</span></td>
+                  <td><span class="pill p-prop">Proposal</span></td>
+                  <td class="r num amt">$96,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:50%"></b></i><span class="num">50%</span></span></td>
+                  <td><div class="when">Dec 15, 2026<small>in 37 days</small></div></td>
+                  <td class="next">Security questionnaire due Wed Nov 11</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg5">KR</span><span><b>Keystone Ridge Credit Union</b><small>Member insights platform</small></span></div></td>
+                  <td><span class="person"><span class="av xs c7">GA</span>Gwen Abernathy</span></td>
+                  <td><span class="pill p-qual">Qualified</span></td>
+                  <td class="r num amt">$64,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:25%"></b></i><span class="num">25%</span></span></td>
+                  <td><div class="when">Dec 18, 2026<small>in 40 days</small></div></td>
+                  <td class="next">IT deep-dive before Dec 3 budget committee</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg2">VL</span><span><b>Verdant Labs</b><small>Team plan upgrade</small></span></div></td>
+                  <td><span class="person"><span class="av xs c10">MT</span>Mei Tanaka</span></td>
+                  <td><span class="pill p-qual">Qualified</span></td>
+                  <td class="r num amt">$14,400</td>
+                  <td class="r"><span class="prob"><i><b style="width:25%"></b></i><span class="num">25%</span></span></td>
+                  <td><div class="when">Jan 8, 2027<small>Q1 2027</small></div></td>
+                  <td class="next">Usage review with Mei, Nov 19</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg7">TC</span><span><b>Tidewater Coffee Co.</b><small>Multi-site analytics</small></span></div></td>
+                  <td><span class="person"><span class="av xs c8">JC</span>Jamie Collins</span></td>
+                  <td><span class="pill p-pros">Prospecting</span></td>
+                  <td class="r num amt">$9,600</td>
+                  <td class="r"><span class="prob"><i><b style="width:10%"></b></i><span class="num">10%</span></span></td>
+                  <td><div class="when">Jan 15, 2027<small>Q1 2027</small></div></td>
+                  <td class="next">Discovery call, Mon Nov 16</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg8">HF</span><span><b>Halcyon Freight</b><small>Fleet visibility pilot</small></span></div></td>
+                  <td><span class="person"><span class="av xs c2">LR</span>Luis Romero</span></td>
+                  <td><span class="pill p-pros">Prospecting</span></td>
+                  <td class="r num amt">$18,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:10%"></b></i><span class="num">10%</span></span></td>
+                  <td><div class="when">Jan 29, 2027<small>Q1 2027</small></div></td>
+                  <td class="next">Send pilot scope doc<br><span class="tag stale">No activity 16d</span></td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg4">BH</span><span><b>Bramblewood Health</b><small>Clinic ops rollout</small></span></div></td>
+                  <td><span class="person"><span class="av xs c5">NF</span>Naomi Feld</span></td>
+                  <td><span class="pill p-pros">Prospecting</span></td>
+                  <td class="r num amt">$42,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:10%"></b></i><span class="num">10%</span></span></td>
+                  <td><div class="when">Feb 12, 2027<small>Q1 2027</small></div></td>
+                  <td class="next">Intro to clinic ops leads, Nov 18</td>
+                </tr>
+                <tr class="row-open">
+                  <td><div class="cell"><span class="logo-sq lg1">AV</span><span><b>Ashgrove Veterinary Partners</b><small>Hospital network pilot</small></span></div></td>
+                  <td><span class="person"><span class="av xs c4">KM</span>Kofi Mensah</span></td>
+                  <td><span class="pill p-pros">Prospecting</span></td>
+                  <td class="r num amt">$26,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:10%"></b></i><span class="num">10%</span></span></td>
+                  <td><div class="when">Feb 26, 2027<small>Q1 2027</small></div></td>
+                  <td class="next">Intro call, Fri Nov 13</td>
+                </tr>
+
+                <!-- Won this quarter -->
+                <tr class="row-won">
+                  <td><div class="cell"><span class="logo-sq lg2">FP</span><span><b>Fernhill Property Management</b><small>Portfolio reporting</small></span></div></td>
+                  <td><span class="person"><span class="av xs c6">AR</span>Aisha Rahman</span></td>
+                  <td><span class="pill p-won">Closed won</span></td>
+                  <td class="r num amt">$24,500</td>
+                  <td class="r"><span class="prob"><i><b style="width:100%"></b></i><span class="num">100%</span></span></td>
+                  <td><div class="when">Nov 5, 2026<small>3 days ago</small></div></td>
+                  <td class="next">Kickoff with CS, Thu Nov 12</td>
+                </tr>
+                <tr class="row-won">
+                  <td><div class="cell"><span class="logo-sq lg8">GP</span><span><b>Granite Peak Manufacturing</b><small>Plant floor dashboards</small></span></div></td>
+                  <td><span class="person"><span class="av xs c9">DS</span>Derek Sorensen</span></td>
+                  <td><span class="pill p-won">Closed won</span></td>
+                  <td class="r num amt">$88,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:100%"></b></i><span class="num">100%</span></span></td>
+                  <td><div class="when">Oct 28, 2026<small>11 days ago</small></div></td>
+                  <td class="next">Onboarding in progress</td>
+                </tr>
+                <tr class="row-won">
+                  <td><div class="cell"><span class="logo-sq lg4">BD</span><span><b>Brightwater Dental Group</b><small>Practice analytics</small></span></div></td>
+                  <td><span class="person"><span class="av xs c2">CR</span>Carmen Ruiz</span></td>
+                  <td><span class="pill p-won">Closed won</span></td>
+                  <td class="r num amt">$46,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:100%"></b></i><span class="num">100%</span></span></td>
+                  <td><div class="when">Oct 9, 2026<small>30 days ago</small></div></td>
+                  <td class="next">Live · handed off to CS</td>
+                </tr>
+
+                <!-- Lost this quarter -->
+                <tr class="row-lost">
+                  <td><div class="cell"><span class="logo-sq lg5">QP</span><span><b>Quillfeather Publishing</b><small>Editorial ops dashboards</small></span></div></td>
+                  <td><span class="person"><span class="av xs c8">LF</span>Lena Fischer</span></td>
+                  <td><span class="pill p-lost">Closed lost</span></td>
+                  <td class="r num amt">$12,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:0%"></b></i><span class="num">0%</span></span></td>
+                  <td><div class="when">Nov 2, 2026<small>6 days ago</small></div></td>
+                  <td class="next">No decision, budget frozen. Revisit Q2 2027</td>
+                </tr>
+                <tr class="row-lost">
+                  <td><div class="cell"><span class="logo-sq lg3">HV</span><span><b>Harbor &amp; Vine Hospitality</b><small>Multi-property reporting</small></span></div></td>
+                  <td><span class="person"><span class="av xs c3">OG</span>Owen Gallagher</span></td>
+                  <td><span class="pill p-lost">Closed lost</span></td>
+                  <td class="r num amt">$33,000</td>
+                  <td class="r"><span class="prob"><i><b style="width:0%"></b></i><span class="num">0%</span></span></td>
+                  <td><div class="when">Oct 21, 2026<small>18 days ago</small></div></td>
+                  <td class="next">Lost to competitor on price</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="row-open"><td colspan="3">12 open deals</td><td class="r num">$577,500</td><td class="r num muted" colspan="2" style="text-align:left;padding-left:24px">Weighted <span style="color:var(--text)">$271,535</span></td><td></td></tr>
+                <tr class="row-won"><td colspan="3">3 deals won in Q4</td><td class="r num">$158,500</td><td colspan="3" class="muted">39.6% of $400,000 quota</td></tr>
+                <tr class="row-lost"><td colspan="3">2 deals lost in Q4</td><td class="r num">$45,000</td><td colspan="3"></td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Contacts ============ -->
+        <section class="card span-8 contacts" aria-labelledby="h-contacts">
+          <header class="card-head">
+            <div><h2 id="h-contacts">Key contacts</h2><div class="meta">On open deals, most recently engaged first</div></div>
+            <a class="link" href="#">All 64 contacts →</a>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Contact</th><th>Company · role</th><th>Last touch</th><th>Email / phone</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="cell"><span class="av c1">MO</span><span><b>Marcus Okafor<span class="star" title="Key contact">★</span></b><small>VP, Claims Operations</small></span></div></td>
+                  <td><span class="co">Sable Point Insurance</span><span class="role champ">Champion</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-phone"/></svg>Call · Nov 6</span><span class="touch-ago">2 days ago</span></td>
+                  <td class="reach"><a href="mailto:m.okafor@sablepoint.com"><svg class="i"><use href="#i-mail"/></svg>m.okafor@sablepoint.com</a><a href="tel:+16175550142"><svg class="i"><use href="#i-phone"/></svg>(617) 555-0142</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c10">EV</span><span><b>Elena Vasquez</b><small>Senior Procurement Manager</small></span></div></td>
+                  <td><span class="co">Sable Point Insurance</span><span class="role">Procurement</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-mail"/></svg>Email · Nov 6</span><span class="touch-ago">2 days ago</span></td>
+                  <td class="reach"><a href="mailto:e.vasquez@sablepoint.com"><svg class="i"><use href="#i-mail"/></svg>e.vasquez@sablepoint.com</a><a href="tel:+16175550178"><svg class="i"><use href="#i-phone"/></svg>(617) 555-0178</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c4">TH</span><span><b>Tomás Herrera</b><small>Field Operations Manager</small></span></div></td>
+                  <td><span class="co">Lumen Grid Energy</span><span class="role champ">Champion</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-mail"/></svg>Email · Nov 6</span><span class="touch-ago">2 days ago</span></td>
+                  <td class="reach"><a href="mailto:therrera@lumengrid.com"><svg class="i"><use href="#i-mail"/></svg>therrera@lumengrid.com</a><a href="tel:+13035550119"><svg class="i"><use href="#i-phone"/></svg>(303) 555-0119</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c3">HL</span><span><b>Hannah Lindqvist<span class="star" title="Key contact">★</span></b><small>Director of Retail Operations</small></span></div></td>
+                  <td><span class="co">Ridgeline Outdoor Co.</span><span class="role dm">Decision maker</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-cal"/></svg>Meeting · Nov 5</span><span class="touch-ago">3 days ago</span></td>
+                  <td class="reach"><a href="mailto:hannah@ridgelineco.com"><svg class="i"><use href="#i-mail"/></svg>hannah@ridgelineco.com</a><a href="tel:+15035550163"><svg class="i"><use href="#i-phone"/></svg>(503) 555-0163</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c6">RM</span><span><b>Rajiv Menon<span class="star" title="Key contact">★</span></b><small>Head of Quality &amp; Compliance</small></span></div></td>
+                  <td><span class="co">Meridian Pharma Supply</span><span class="role">Technical evaluator</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-mail"/></svg>Email · Nov 4</span><span class="touch-ago">4 days ago</span></td>
+                  <td class="reach"><a href="mailto:rmenon@meridianpharma.com"><svg class="i"><use href="#i-mail"/></svg>rmenon@meridianpharma.com</a><a href="tel:+19085550187"><svg class="i"><use href="#i-phone"/></svg>(908) 555-0187</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c5">SB</span><span><b>Sofia Brennan<span class="star" title="Key contact">★</span></b><small>Managing Partner</small></span></div></td>
+                  <td><span class="co">Cobalt &amp; Finch Architects</span><span class="role dm">Economic buyer</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-phone"/></svg>Call · Nov 3</span><span class="touch-ago">5 days ago</span></td>
+                  <td class="reach"><a href="mailto:sofia@cobaltfinch.com"><svg class="i"><use href="#i-mail"/></svg>sofia@cobaltfinch.com</a><a href="tel:+13125550134"><svg class="i"><use href="#i-phone"/></svg>(312) 555-0134</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c7">GA</span><span><b>Gwen Abernathy</b><small>Chief Information Officer</small></span></div></td>
+                  <td><span class="co">Keystone Ridge Credit Union</span><span class="role dm">Decision maker</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-cal"/></svg>Meeting · Oct 29</span><span class="touch-ago">10 days ago</span></td>
+                  <td class="reach"><a href="mailto:gabernathy@krcu.org"><svg class="i"><use href="#i-mail"/></svg>gabernathy@krcu.org</a><a href="tel:+17175550150"><svg class="i"><use href="#i-phone"/></svg>(717) 555-0150</a></td>
+                </tr>
+                <tr>
+                  <td><div class="cell"><span class="av c9">DP</span><span><b>Darnell Price</b><small>VP, Operations</small></span></div></td>
+                  <td><span class="co">Oakhurst Logistics</span><span class="role champ">Champion</span></td>
+                  <td><span class="touch"><svg class="i"><use href="#i-phone"/></svg>Call · Oct 22</span><span class="touch-ago cold">17 days ago · going cold</span></td>
+                  <td class="reach"><a href="mailto:dprice@oakhurstlx.com"><svg class="i"><use href="#i-mail"/></svg>dprice@oakhurstlx.com</a><a href="tel:+19015550126"><svg class="i"><use href="#i-phone"/></svg>(901) 555-0126</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-foot"><span><span class="star" style="margin:0">★</span> Flagged as key contact</span><span>Showing 8 of 64</span></div>
+        </section>
+
+        <!-- ============ Activity ============ -->
+        <section class="card span-4 activity-card" aria-labelledby="h-activity">
+          <header class="card-head">
+            <div><h2 id="h-activity">Recent activity</h2><div class="meta">You and your accounts</div></div>
+            <a class="link" href="#">View all →</a>
+          </header>
+          <div class="scroll">
+            <ul class="feed">
+              <li>
+                <span class="f-ico t-note"><svg class="i"><use href="#i-note"/></svg></span>
+                <div class="f-text">
+                  <p><b>You</b> added a note to <a href="#">Ridgeline Outdoor Co.</a></p>
+                  <div class="quote">“Hannah wants +40 seats for the new Bend and Boise stores. Needs CFO sign-off by Nov 18.”</div>
+                  <div class="f-meta">Note · 1h ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-view"><svg class="i"><use href="#i-eye"/></svg></span>
+                <div class="f-text">
+                  <p><b>Hannah Lindqvist</b> viewed <a href="#">Renewal &amp; Expansion Proposal v3</a> (3rd view)</p>
+                  <div class="f-meta">Ridgeline Outdoor Co. · 3h ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-email"><svg class="i"><use href="#i-mail"/></svg></span>
+                <div class="f-text">
+                  <p><b>Elena Vasquez</b> replied: <a href="#">RE: MSA redlines, §7.2 indemnification cap</a></p>
+                  <div class="f-meta">Sable Point Insurance · Fri 5:48 PM · 2d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-stage"><svg class="i"><use href="#i-arrow"/></svg></span>
+                <div class="f-text">
+                  <p><a href="#">Sable Point · Claims dashboard</a> moved <b>Proposal → Negotiation</b></p>
+                  <div class="f-meta">$118,000 · Fri 3:10 PM · 2d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-call"><svg class="i"><use href="#i-phone"/></svg></span>
+                <div class="f-text">
+                  <p><b>You</b> called <a href="#">Marcus Okafor</a> · 24 min</p>
+                  <div class="quote">“Budget approved for FY27. Legal wants to close out the MSA on Monday’s call.”</div>
+                  <div class="f-meta">Sable Point Insurance · Fri 2:30 PM · 2d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-email"><svg class="i"><use href="#i-mail"/></svg></span>
+                <div class="f-text">
+                  <p><b>You</b> emailed <a href="#">Tomás Herrera</a>: Pricing options, annual vs. 3-year</p>
+                  <div class="f-meta">Lumen Grid Energy · Fri 11:05 AM · 2d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-won"><svg class="i"><use href="#i-award"/></svg></span>
+                <div class="f-text">
+                  <p><a href="#">Fernhill Property Management</a> closed won · <b class="num">$24,500</b></p>
+                  <div class="f-meta">Portfolio reporting · Thu · 3d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-meet"><svg class="i"><use href="#i-cal"/></svg></span>
+                <div class="f-text">
+                  <p><b>Meeting:</b> Ridgeline QBR &amp; expansion scoping with <a href="#">Hannah Lindqvist</a> +2</p>
+                  <div class="f-meta">Ridgeline Outdoor Co. · Thu · 3d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-email"><svg class="i"><use href="#i-mail"/></svg></span>
+                <div class="f-text">
+                  <p><b>Rajiv Menon</b> emailed: needs SOC 2 Type II report + security questionnaire before PO</p>
+                  <div class="f-meta">Meridian Pharma Supply · Wed · 4d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-new"><svg class="i"><use href="#i-plus"/></svg></span>
+                <div class="f-text">
+                  <p><b>You</b> created <a href="#">Ashgrove Veterinary Partners · Hospital network pilot</a> · <b class="num">$26,000</b></p>
+                  <div class="f-meta">Inbound from webinar · Wed · 4d ago</div>
+                </div>
+              </li>
+              <li>
+                <span class="f-ico t-lost"><svg class="i"><use href="#i-x"/></svg></span>
+                <div class="f-text">
+                  <p><a href="#">Quillfeather Publishing</a> closed lost · <b class="num">$12,000</b></p>
+                  <div class="f-meta">No decision, budget frozen · Mon · 6d ago</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <footer class="page-foot">
+        <span>Kestrel CRM · Sample data for demonstration</span>
+        <span>Last synced Sun, Nov 8, 2026 at 7:28 PM</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var list = document.querySelector('.task-list');
+    var out = document.getElementById('taskCount');
+    if (list && out) {
+      list.addEventListener('change', function () {
+        var n = list.querySelectorAll('input[type="checkbox"]:not(:checked)').length;
+        out.textContent = n + ' open';
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        var q = document.getElementById('q');
+        if (q) q.focus();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

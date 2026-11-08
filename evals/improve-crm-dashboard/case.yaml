@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: improve-crm-dashboard
+expected_outcome: |
+  An improved.html that looks different at a glance from the generic five-equal-cards baseline:
+  one headline number or sentence at display size answering how the rep is doing and what to do
+  next, every metric shown against a target or a period, one primary action that is the only
+  filled brand-colour button in the main area, at least one non-default state designed in the
+  code, a type scale of at most five sizes and two weights, and a changes.md that states the
+  before scorecard and lists each change with what it fixes and the reason.
+context:
+  scaffold_script: place-files.sh

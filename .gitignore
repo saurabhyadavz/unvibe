@@ -1,0 +1,7 @@
+# private: this eval's input is a product's source code
+evals/audit-app-home-screen/
+# the landing-page shots are not used in the README
+docs/landing-before.png
+docs/landing-after.png
+.DS_Store
+node_modules/

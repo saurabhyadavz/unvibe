@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: landing-hero-rewrite
+expected_outcome: |
+  A new hero.html with one primary call to action (at most one visibly softer secondary), a
+  headline that states the outcome for the aspirant rather than the technology, body copy that a
+  scanner can read (what it is, why it helps, what to do next), at least one proof point, one or
+  two font families, no purple-to-blue gradient or gradient text, a constrained text measure,
+  and a layout that works at phone width.
+context:
+  scaffold_script: place-files.sh
