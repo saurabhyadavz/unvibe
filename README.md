@@ -83,7 +83,7 @@ Honest caveats: the skill's improve runs cost more than a bare build (about twic
 
 Every design idea here is Tim Gabe's, from his channel [@TimGabe](https://www.youtube.com/@TimGabe); `references/sources.md` lists all 81 videos with what each contributed. This is an independent distillation and is not affiliated with or endorsed by him. If you build apps, watch the videos; the skill is a reminder of them, not a replacement.
 
-The shape of the audit borrows from two unslop projects: [Damir Sokolovsky's unslop skill](https://heydamir.design/unslop) (CC BY 4.0) for the tells-with-fixes list, the banned direction words, the fixed pass order and the rule to leave a good screen alone; and [Matt Shumer's unslop](https://github.com/mshumer/unslop) (MIT) for measuring a model's defaults instead of guessing at them. The wording in this repo is its own.
+The audit's shape borrows from [Damir Sokolovsky's unslop](https://heydamir.design/unslop) (CC BY 4.0) and [Matt Shumer's unslop](https://github.com/mshumer/unslop) (MIT); the ideas and wording here are our own beyond that.
 
 Built with Claude Code. The demo video's music was generated with Google Lyria.
 

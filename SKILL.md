@@ -260,8 +260,6 @@ When unsure what to say about a design, these questions always produce the findi
 ## Credits
 
 Every design idea in the references is Tim Gabe's, from his YouTube channel (@TimGabe); the
-video id in brackets after each rule says which one. The shape of the audit borrows from two
-"unslop" projects: Damir Sokolovsky's unslop skill (CC BY 4.0, x.com/heydamir) for the idea of
-a tells-with-fixes list, banned direction words, a fixed pass order and the rule to leave a good
-screen alone; Matt Shumer's unslop tool (MIT, github.com/mshumer/unslop) for measuring a
-model's defaults instead of guessing at them. The wording here is this skill's own.
+video id in brackets after each rule says which one. The audit's shape borrows from Damir
+Sokolovsky's unslop (CC BY 4.0, x.com/heydamir) and Matt Shumer's unslop (MIT,
+github.com/mshumer/unslop); the ideas and wording here are our own beyond that.
